@@ -1,0 +1,5 @@
+{
+  "HOST": "localhost",
+  "HTTP_PORT": 3000,
+  "BASE_URL": "/"
+}

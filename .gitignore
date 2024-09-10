@@ -1,0 +1,21 @@
+node_modules
+dist
+mac-dist
+out
+build
+database.json
+*.log*
+.env
+test.sh
+certificate.p12
+.DS_Store
+/test-results/
+/playwright-report/
+/playwright/.cache/
+/tests
+/tests-examples
+playwright.config.ts
+* copy.*
+*.wav
+build-mac.sh
+.idea

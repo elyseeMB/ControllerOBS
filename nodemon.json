@@ -1,0 +1,11 @@
+{
+  "watch": [
+    "src"
+  ],
+  "ext": ".ts,.js",
+  "ignore": [
+    "src/render/dist"
+  ],
+  "exec": "cross-env DEBUG=true tsc -p tsconfig.json && ts-node -r tsconfig-paths/register src/main/index.ts"
+}
+
