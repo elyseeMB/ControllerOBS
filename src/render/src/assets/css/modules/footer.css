@@ -1,0 +1,6 @@
+.footer__element {
+  grid-area: footer;
+  padding: 1em;
+  background: cornsilk;
+  color: black;
+}

@@ -1,0 +1,74 @@
+.connection {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 40px;
+}
+
+.wrapper__connection-obs {
+  position: relative;
+  width: 100%;
+  display: grid;
+  place-items: center;
+  grid-template-rows: 3fr;
+  gap: 30px;
+  padding: 30px;
+}
+
+.wrapper__connection-obs .form {
+  form {
+    --padding: 20px;
+    --width: 500px;
+    --gap: 7px;
+    --form-background: rgb(37, 37, 37);
+    border: 1.3px solid var(--border-color);
+    position: relative;
+    width: var(--width);
+    padding: var(--padding);
+    border-radius: var(--border-radius-large);
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+
+    & > * {
+      --width: calc(500px - (2 * var(--padding)));
+      width: var(--width);
+      display: block;
+      height: 50px;
+      border: 1.2px solid var(--border-color);
+      border-radius: calc(var(--border-radius-large) * 0.75);
+    }
+
+    & > input {
+      padding: 10px 15px;
+    }
+
+    & > input:focus {
+      background-color: #313131;
+    }
+
+    & button {
+      border: none;
+      background-color: var(--contrast);
+      margin-top: calc(var(--padding) / 2);
+      cursor: pointer;
+    }
+  }
+}
+
+.button__actions {
+  width: 100%;
+  display: flex;
+  align-content: center;
+  justify-content: space-between;
+
+
+  & > button {
+
+  }
+}
+

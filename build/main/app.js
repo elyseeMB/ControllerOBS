@@ -35,6 +35,9 @@ const fs = __importStar(require("node:fs"));
 const Setup_1 = require("@src/main/modules/Setup");
 const logger_1 = require("@src/main/utils/logger");
 const socket_io_1 = require("socket.io");
+const process = __importStar(require("node:process"));
+const db_1 = __importDefault(require("@src/main/utils/db"));
+const Profiles_1 = require("@src/main/modules/Profiles");
 const DEFAULT = require("../resources/json/config.json");
 const HTTP_PORT = DEFAULT.HTTP_PORT;
 const BASE_URL = DEFAULT.BASE_URL;
@@ -64,9 +67,21 @@ class App {
             }
             return { success: "proccess..." };
         };
+        this.setDefaultProfile = (id) => {
+            return this.profiles.setDefault(id);
+        };
         this.logger = (0, logger_1.getLogger)("launch app class App");
+        this.profiles = new Profiles_1.Profiles();
         this.ioClients = new Map();
         this.autostart = autostart;
+    }
+    initError() {
+        const exit = (error) => {
+            this.logger.error(error);
+            this.clean();
+            process.on("unhandledRejection", (err) => exit(err.stack));
+            process.on("uncaughtException", (err) => exit(err.stack));
+        };
     }
     getHttpServer() {
         const pathFile = path.join(__dirname, "../render/dist");
@@ -121,16 +136,25 @@ class App {
             console.log(`server running port ${HTTP_PORT}`);
         });
     }
+    async initDatabase() {
+        await db_1.default.connect();
+    }
     initSetup() {
         if (this.setup) {
             return;
         }
         this.setup = new Setup_1.Setup();
     }
-    init() {
-        console.log("je suis l'initialisation");
+    async init() {
+        this.initError();
         this.initServer();
+        await this.initDatabase();
         this.handle();
+    }
+    clean() {
+        this.logger.info("cleanning...");
+        this.http?.close();
+        this.io?.close();
     }
     handle() {
         this.handleIo();
@@ -150,8 +174,16 @@ class App {
         });
         // CONNECTION
         this.io.on("connection", (socket) => {
-            this.logger.info("Client connected", socket.id);
+            this.logger.info("Client connected-socketIO", socket.id);
             this.ioClients.set(socket.id, socket);
+            //PROFILE
+            socket.on("saveProfile", (p, callback) => {
+                this.logger.warn(p);
+                callback(this.profiles.set(p));
+            });
+            socket.on("setDefaultProfile", (id, callback) => {
+                callback(this.setDefaultProfile(id));
+            });
             // SETUP
             socket.on("setup", (p, callback) => {
                 callback(this.toggleSetup(p, socket));
@@ -162,6 +194,9 @@ class App {
         if (!this.setup) {
             return;
         }
+        this.setup.obs.reachable$.subscribe((reachable) => {
+            this.io?.to(IO_ROOM.SETUP).emit("handleObsConnected", reachable);
+        });
         this.setup.obs.scenes$.subscribe((scenes) => {
             this.io?.to(IO_ROOM.SETUP).emit("handleMixerScenes", scenes);
         });
@@ -171,6 +206,12 @@ class App {
         // OBS
         socket.on("connectionObs", (c, callback) => {
             callback(this.setup?.connectObs(c));
+        });
+        // EVENT PAGE CLIENT
+        socket.on("backSetupPage", (isBack, callback) => {
+            if (!isBack)
+                return;
+            callback(this.setup?.clean());
         });
     }
 }

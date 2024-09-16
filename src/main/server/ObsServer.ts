@@ -15,7 +15,6 @@ export class ObsServer extends Server {
   
   constructor(fromProfile: boolean = false) {
     super("obs-server");
-    
     this.websocket = new OBSWebSocket();
     this.scenes$ = new BehaviorSubject<Asset[
       "scene"][]>([]);
@@ -38,6 +37,11 @@ export class ObsServer extends Server {
     this.reachable$.next(false);
     super.clean();
   }
+  
+  // private getConfigFromProfile() {
+  //   const obsConfig = db.getSpecificAndDefault();
+  // }
+  //
   
   private async websocketConnection() {
     try {

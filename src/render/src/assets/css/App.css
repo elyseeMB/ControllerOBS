@@ -1,0 +1,16 @@
+/* Tools */
+@import "./tools/reset.css";
+@import "./tools/layout.css";
+
+/*Modules*/
+@import "./modules/header.css";
+@import "./modules/sidebar.css";
+@import "./modules/footer.css";
+@import "./modules/toast.css";
+@import "./modules/btn.css";
+@import "./modules/card-primary.css";
+
+/*Pages*/
+@import "./pages/splashView.css";
+@import "./pages/setup/obsConnection.css";
+@import "./pages/features.css";

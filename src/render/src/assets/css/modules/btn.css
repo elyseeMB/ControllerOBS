@@ -1,0 +1,83 @@
+.btn {
+  padding: 9px 16px;
+  display: block;
+  align-items: center;
+  font-size: 0.9em;
+  width: 100px;
+  white-space: nowrap;
+  min-width: 0;
+  border: none;
+  border-radius: var(--border-radius);
+  line-height: 1.6;
+  transition: filter 0.3s, background 0.3s;
+  cursor: pointer;
+
+  &[disabled] {
+    cursor: default;
+    filter: grayscale(1);
+    opacity: 0.7;
+  }
+
+  a[disabled]:hover {
+    filter: grayscale(1);
+  }
+
+  &:hover {
+    filter: brightness(1.2);
+  }
+
+  .icon {
+    width: 16px;
+    height: 16px;
+    margin-right: var(--gap-small);
+  }
+}
+
+.btn-primary {
+  background: var(--contrast);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1.5px solid var(--border-color);
+
+  &:hover {
+    filter: none;
+    background: var(--secondary);
+  }
+}
+
+.btn-rounded {
+  border-radius: 100%;
+}
+
+.btn__back {
+  position: fixed;
+  width: 50px;
+  height: 50px;
+  top: 5%;
+  left: 5%;
+  opacity: 1;
+  background: transparent;
+  border: 1.5px solid var(--border-color);
+  transform: translateY(0);
+  transition: opacity 0.3s, transform 0.3s;
+
+
+  &.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(10px);
+  }
+
+  .icon {
+    width: 36px;
+    height: 26px;
+  }
+
+  &:hover {
+    background: var(--border-color);
+  }
+}
+

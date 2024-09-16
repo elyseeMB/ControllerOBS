@@ -1,0 +1,59 @@
+.splash-view {
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  gap: 10px;
+  width: 100%;
+  height: 100vh;
+}
+
+.container__controller {
+  width: calc(100vw - 50%);
+  display: grid;
+  place-content: center;
+  grid-template-columns: repeat(auto-fill, minmax(var(--col, 275px), 1fr));
+  gap: 5px;
+}
+
+.card__controller {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1.4px solid rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  padding: 20px;
+  transition: background-color 0.3s;
+  cursor: pointer;
+}
+
+.card__controller:not(.card__controller-valid) {
+  opacity: var(--disabled-opacity);
+  pointer-events: none;
+}
+
+.card__controller[disabled] {
+  cursor: default;
+}
+
+.card__controller:hover {
+  background-color: var(--contrast);
+}
+
+.card__controller-name {
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis
+}
+
+.card__controller-description {
+  line-height: 1.6;
+  font-size: 0.9rem;
+}
+
+.card__controller-description p {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis
+}

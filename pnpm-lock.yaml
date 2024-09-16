@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  deep-eql:
+    specifier: ^5.0.2
+    version: 5.0.2
   finalhandler:
     specifier: ^1.3.0
     version: 1.3.0
@@ -17,11 +20,17 @@ dependencies:
   serve-static:
     specifier: ^1.16.0
     version: 1.16.0
+  simple-json-db:
+    specifier: ^2.0.0
+    version: 2.0.0
   socket.io:
     specifier: ^4.7.5
     version: 4.7.5
 
 devDependencies:
+  '@types/deep-eql':
+    specifier: ^4.0.2
+    version: 4.0.2
   '@types/finalhandler':
     specifier: ^1.2.3
     version: 1.2.3
@@ -103,6 +112,10 @@ packages:
     dependencies:
       '@types/node': 22.5.4
     dev: false
+
+  /@types/deep-eql@4.0.2:
+    resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
+    dev: true
 
   /@types/finalhandler@1.2.3:
     resolution: {integrity: sha512-I+Ba0JZEiuSr8LLjVmBhvLBEN8KG9GSITNXWwPCLeAvZj/k5pXEdOBEvnEEIgA038eeaauJ3BPxbuxeFBsqqUw==}
@@ -278,6 +291,11 @@ packages:
     dependencies:
       ms: 2.1.3
       supports-color: 5.5.0
+
+  /deep-eql@5.0.2:
+    resolution: {integrity: sha512-h5k/5U50IJJFpzfL6nO9jaaumfjO/f2NjK/oYB2Djzm4p9L+3T9qWpZqZ2hAbLPuuYq9wrU08WQyBTL5GbPk5Q==}
+    engines: {node: '>=6'}
+    dev: false
 
   /depd@2.0.0:
     resolution: {integrity: sha512-g7nH6P6dyDioJogAAGprGpCtVImJhpPk/roCzdb3fIh61/s/nPsfR6onyMwkCAR/OlC3yBC0lESvUoQEAssIrw==}
@@ -634,6 +652,11 @@ packages:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
     dev: true
+
+  /simple-json-db@2.0.0:
+    resolution: {integrity: sha512-oTh7gFQzqAe0E8RN3EkisPo0CojkzcKCKibTcJncg0yt47hWTaNwwjX/FsxfXSTDxfMjBFXFVnZe/EskAlJr7w==}
+    engines: {node: '>=10.0'}
+    dev: false
 
   /simple-update-notifier@2.0.0:
     resolution: {integrity: sha512-a2B9Y0KlNXl9u/vsW6sTIu9vGEpfKu2wRV6l1H3XEas/0gUIzGzBoP/IouTcUQbm9JWZLH3COxyn03TYlFax6w==}

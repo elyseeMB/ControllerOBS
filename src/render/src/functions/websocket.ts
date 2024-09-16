@@ -6,6 +6,7 @@ type PropsEvent = {
   data?: any
 }
 
+
 export async function socketEmitter({socket, event, data}: PropsEvent) {
   return await new Promise((resolve, reject) => {
     if (!socket) {
@@ -19,4 +20,11 @@ export async function socketEmitter({socket, event, data}: PropsEvent) {
       }
     });
   });
+}
+
+export function socketHandler(socket: Socket, event: string, callback: (...arg: any) => void) {
+  if (!socket) {
+    return;
+  }
+  socket.on(event, callback);
 }

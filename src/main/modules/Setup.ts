@@ -1,6 +1,7 @@
 import { ObsServer } from "@src/main/server/ObsServer";
-import { Connection } from "@src/types/types";
+import { Connection, IconName, Profile, ProfileSettings } from "@src/types/types";
 import { getLogger, Logger } from "@src/main/utils/logger";
+import { Profiles } from "@src/main/modules/Profiles";
 
 const config = {
   ip: "localhost:4455",
@@ -10,10 +11,12 @@ const config = {
 export class Setup {
   obs: ObsServer;
   logger: Logger;
+  profiles: Profiles;
   
   constructor() {
     this.logger = getLogger("Setup logger");
     this.obs = new ObsServer(false);
+    this.profiles = new Profiles();
   }
   
   clean() {
@@ -23,9 +26,33 @@ export class Setup {
   
   connectObs(connection: Connection) {
     this.logger.info(connection);
-    console.log(connection);
     if (!this.obs.isReachable) {
       this.obs.connect(connection);
+      // const data = this.profiles.getAll();
+      // this.profiles.set({
+      //   id: 6,
+      //   name: "string 4 jfksd",
+      //   icon: "folder",
+      //   active: false,
+      //   settings: {
+      //     containers: [{
+      //       name: "container-name 4",
+      //       containers: {
+      //         name: "container 4",
+      //         sources: [{
+      //           name: "sourceName",
+      //           options: {},
+      //         }],
+      //         options: {},
+      //       },
+      //     }],
+      //   },
+      //   connections: {
+      //     type: "obs",
+      //   },
+      //   autoStart: false,
+      //   record: "start",
+      // });
     }
   }
   

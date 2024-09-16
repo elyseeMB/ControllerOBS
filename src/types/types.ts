@@ -17,11 +17,6 @@ export type AssetScene = {
   containers: AssetContainer
 }
 
-export interface Connection {
-  ip: string,
-  password: string
-}
-
 export type Asset = {
   id: AssetId
   name: AssetName
@@ -56,4 +51,45 @@ type MethodKeys<T> = {
 type MethodsOnly<T> = Pick<T, MethodKeys<T>>;
 
 export type DynamicResponseObsItem<T extends MethodsOnly<T>, K extends keyof T> = ReturnType<T[K]>;
+
+export type IconName = "folder"
+
+
+/* INTERFACES */
+/***************************************/
+
+/*CONNECTIONS*/
+export type ConnectionType = "obs" | "vmix" | "osc"
+
+export interface ConnectionsConfig {
+  type?: "obs" | "vmix";
+  obs?: Connection;
+  vmix?: Connection;
+}
+
+/******************************************/
+
+export interface Connection {
+  ip: string,
+  password: string
+}
+
+export interface Profile {
+  id: number;
+  name: string;
+  icon: IconName;
+  active?: boolean;
+  settings: ProfileSettings;
+  connections: ConnectionsConfig;
+  autoStart?: boolean;
+  record?: string;
+}
+
+export interface ProfileSettings {
+  containers: AssetScene[];
+}
+
+export interface ServerConfig {
+  profiles: Profile[];
+}
 
