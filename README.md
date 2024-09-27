@@ -1,5 +1,3 @@
-Absolument ! Voici une version améliorée de votre texte, formatée pour un fichier README.md sur GitHub, avec des sections claires, des balises Markdown pour la mise en forme et des liens pertinents :
-
 ## ControllerOBS
 
 **Une application Node.js pour contrôler OBS Studio via l'API obs-websocket**
