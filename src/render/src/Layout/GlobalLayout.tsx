@@ -3,6 +3,7 @@ import { ComponentProps } from "react";
 import { Outlet } from "react-router-dom";
 import { FooterLayout } from "./FooterLayout.tsx";
 import { SidebarLayout } from "./SidebarLayout.tsx";
+import App from "../App.tsx";
 
 
 type Params = ComponentProps<typeof HeaderLayout>

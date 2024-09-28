@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Socket } from "socket.io-client";
-import { Asset, ConnectionsConfig, Profile, ProfileSettings } from "../../../types/types.ts";
+import { Asset, ConnectionsConfig, IconName, Profile, ProfileSettings } from "../../../types/types.ts";
 import { defaultFuncToast, ToastParams } from "../components/basic/Toast.tsx";
 import { useRef } from "react";
 import { socketEmitter } from "../functions/websocket.ts";
@@ -31,9 +31,14 @@ type ParamsStore = {
   }
   updateScenesList: (scenes: Asset["scene"][]) => void
   toasts: ToastParams[]
+  redirect: {
+    path: string
+  }
+  power: boolean
 }
 
 type Connections = {
+  type?: "obs" | "vmix"
   connections: {
     obs: boolean,
     vmix: boolean,
@@ -43,6 +48,7 @@ type Connections = {
 type Profiles = {
   profiles: {
     list: Profile[]
+    configConnections: Record<string, string>
     current: Profile["id"]
     newProfileId: Profile["id"]
     editProfile: boolean,
@@ -51,7 +57,9 @@ type Profiles = {
     getCurrent?: () => Profile | undefined
     setCurrent?: (id: Profile["id"]) => void
     save?: () => Promise<void>
+    connections: () => Profile["connections"]
     setDefaultToCurrent?: () => void
+    setScenes?: (scenes: Asset["scene"][], connection: ConnectionsConfig, icon: IconName) => void
   }
 }
 
@@ -71,6 +79,7 @@ export const useAppStore = create<ParamsStore & Connections & Profiles>()((set, 
   },
   profiles: {
     list: [],
+    configConnections: {},
     current: 0,
     editProfile: false,
     newProfileId: 0,
@@ -92,15 +101,9 @@ export const useAppStore = create<ParamsStore & Connections & Profiles>()((set, 
               active: true,
             },
           ],
-          current: generateId(),
         },
       }));
-      useAppStore.setState((state) => ({
-        profiles: {
-          ...state.profiles,
-          current: id,
-        },
-      }));
+      get().profiles.current = id;
     },
     setDefaultToCurrent: () => {
       set((state) => ({
@@ -117,6 +120,17 @@ export const useAppStore = create<ParamsStore & Connections & Profiles>()((set, 
         if (!get().profiles.current && get().profiles.list.length > 0) {
           get().profiles.setCurrent!(get().profiles.list[0].id);
         }
+      }
+    },
+    setScenes: (scenes: Asset["scene"][], connection: ConnectionsConfig, icon: IconName) => {
+      const ids = get().profiles.ids();
+      const current = get().profiles.current;
+      if (ids.indexOf(current) > -1) {
+        get().profiles.list.map(l => {
+          l.settings.containers = scenes;
+          l.icon = icon;
+          l.connections = connection;
+        });
       }
     },
     setCurrent: (id: Profile["id"]) => {
@@ -142,7 +156,15 @@ export const useAppStore = create<ParamsStore & Connections & Profiles>()((set, 
       const currentClone = klona(current);
       await socketEmitter({socket: socketStore, event: "saveProfile", data: currentClone});
     },
+    connections: () => {
+      const current = get().profiles.getCurrent?.();
+      return current ? current.connections : DEFAULT_CONNECTIONS();
+    },
   },
+  redirect: {
+    path: "",
+  },
+  power: false,
 }));
 
 
@@ -165,3 +187,14 @@ export const globalUpdateScenesList = (scenesElements: Asset["scene"][]) => {
     },
   }));
 };
+
+export const globalFetchProfile = async (data: Profile[]) => {
+  useAppStore.setState((state) => ({
+    profiles: {
+      ...state.profiles,
+      list: data as Profile[],
+    },
+  }));
+};
+
+

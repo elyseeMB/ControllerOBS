@@ -38,12 +38,14 @@ const socket_io_1 = require("socket.io");
 const process = __importStar(require("node:process"));
 const db_1 = __importDefault(require("@src/main/utils/db"));
 const Profiles_1 = require("@src/main/modules/Profiles");
+const Controller_1 = require("@src/main/modules/Controller");
 const DEFAULT = require("../resources/json/config.json");
 const HTTP_PORT = DEFAULT.HTTP_PORT;
 const BASE_URL = DEFAULT.BASE_URL;
 // ROOM_SOCKET_IO
 const IO_ROOM = {
     SETUP: "setup",
+    CONTROLLER: "controller",
 };
 class App {
     constructor(autostart = false) {
@@ -67,7 +69,27 @@ class App {
             }
             return { success: "proccess..." };
         };
+        this.toggleController = (power, socket) => {
+            if (!this.controller && power) {
+                this.toggleSetup(false);
+                this.initController();
+                this.handeController();
+            }
+            else if (this.controller && !power) {
+                this.controller.clean();
+                this.controller = undefined;
+            }
+            if (power) {
+                socket?.join(IO_ROOM.CONTROLLER);
+            }
+            else {
+                this.ioClients.forEach((c) => c.leave(IO_ROOM.CONTROLLER));
+            }
+        };
         this.setDefaultProfile = (id) => {
+            if (this.controller) {
+                this.toggleController(false);
+            }
             return this.profiles.setDefault(id);
         };
         this.logger = (0, logger_1.getLogger)("launch app class App");
@@ -139,6 +161,11 @@ class App {
     async initDatabase() {
         await db_1.default.connect();
     }
+    initController() {
+        if (!this.controller)
+            return;
+        this.controller = new Controller_1.Controller("class controller");
+    }
     initSetup() {
         if (this.setup) {
             return;
@@ -171,12 +198,18 @@ class App {
             if (room === IO_ROOM.SETUP) {
                 this.joinSetup(socket);
             }
+            else if (room === IO_ROOM.CONTROLLER) {
+                this.joinController(socket);
+            }
         });
         // CONNECTION
         this.io.on("connection", (socket) => {
             this.logger.info("Client connected-socketIO", socket.id);
             this.ioClients.set(socket.id, socket);
             //PROFILE
+            socket.on("getProfiles", (_date, callback) => {
+                callback(this.profiles.getAll());
+            });
             socket.on("saveProfile", (p, callback) => {
                 this.logger.warn(p);
                 callback(this.profiles.set(p));
@@ -188,6 +221,15 @@ class App {
             socket.on("setup", (p, callback) => {
                 callback(this.toggleSetup(p, socket));
             });
+            // Controller
+            socket.on("togglePower", (power, callback) => {
+                callback(this.toggleController(power, socket));
+            });
+            this.sendAppState();
+        });
+        this.profiles.default$.subscribe((profile) => {
+            this.logger.info("Default profile changed", profile);
+            this.io?.emit("handleDefault", profile);
         });
     }
     handleSetup() {
@@ -207,12 +249,37 @@ class App {
         socket.on("connectionObs", (c, callback) => {
             callback(this.setup?.connectObs(c));
         });
+        socket.on("disconnectObs", (_data, callback) => {
+            callback(this.setup?.disconnectObs());
+        });
         // EVENT PAGE CLIENT
         socket.on("backSetupPage", (isBack, callback) => {
             if (!isBack)
                 return;
             callback(this.setup?.clean());
         });
+    }
+    handeController() {
+        if (!this.controller || !this.io) {
+            return;
+        }
+        this.controller.power$.subscribe((p) => {
+            this.io?.emit("handlePower", p);
+        });
+        this.controller.connections$.subscribe((c) => {
+            this.io?.to(IO_ROOM.CONTROLLER).emit("handleObsConnected", c.obs);
+        });
+    }
+    joinController(socket) {
+        this.logger.info("new Controller client connected");
+        this.sendAppState();
+    }
+    sendAppState() {
+        if (!this.io) {
+            return;
+        }
+        this.io.emit("handlePower", this.controller ? true : false);
+        this.io.emit("handleObsConnected", this.controller?.connections$.getValue().obs || this.setup?.obs.isReachable);
     }
 }
 exports.App = App;

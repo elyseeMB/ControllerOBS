@@ -72,6 +72,13 @@
   }
 }
 
+.flex-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-small);
+  justify-content: center;
+}
+
 .gap-small {
   display: flex;
   gap: var(--gap-small);

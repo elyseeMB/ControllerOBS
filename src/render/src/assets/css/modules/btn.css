@@ -1,9 +1,9 @@
 .btn {
+  position: relative;
   padding: 9px 16px;
   display: block;
   align-items: center;
   font-size: 0.9em;
-  width: 100px;
   white-space: nowrap;
   min-width: 0;
   border: none;

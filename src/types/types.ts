@@ -1,3 +1,6 @@
+export type Callback = ((data: any) => void) | undefined
+
+
 export type AssetName = string
 export type AssetId = number
 
@@ -72,6 +75,8 @@ export interface ConnectionsConfig {
 export interface Connection {
   ip: string,
   password: string
+  
+  [key: string]: string
 }
 
 export interface Profile {

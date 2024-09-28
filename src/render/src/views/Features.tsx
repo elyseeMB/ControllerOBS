@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 export function Features() {
   const navigation = useNavigate();
   const handleClick = () => {
-    navigation("/features/controller/obs");
+    navigation("/home");
   };
   
   
@@ -26,7 +26,6 @@ export function Features() {
           <CgController className="icon"/>
         </div>
       </div>
-      
       
       <div className="card is-feature" disabled>
         Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus accusantium, alias aut autem consequatur cum

@@ -34,8 +34,10 @@ function Toasts() {
   const toasts = useAppStore((state) => state.toasts);
   return <div className="wrapper__toast">
     {toasts.map((toast, index) => (
-      <div className="toast-container " key={index}>
-        <Toast {...toast}/>
+      <div className="toast-container" key={index}>
+        <div className="wrapper__toast">
+          <Toast {...toast}/>
+        </div>
       </div>
     ))}
   </div>;

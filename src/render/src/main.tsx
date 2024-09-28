@@ -1,18 +1,21 @@
-import { StrictMode } from "react";
+import { PropsWithChildren, StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./assets/css/index.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, useLoaderData, useLocation, useNavigate } from "react-router-dom";
 import { GlobalLayout } from "./Layout/GlobalLayout.tsx";
 import { PageError } from "./views/PageError.tsx";
 import { SplashView } from "./views/SplashView.tsx";
 import { Manager } from "socket.io-client";
-import { globalUpdateSocket } from "./store/store.ts";
+import { globalUpdateSocket, useAppStore } from "./store/store.ts";
 import { ToastContextProvider } from "./components/basic/Toast.tsx";
 import { ObsConnection } from "./views/setup/ObsConnection.tsx";
 import { Features } from "./views/Features.tsx";
 import { LayoutSetup } from "./Layout/setup/LayoutSetup.tsx";
 import { MappingObs } from "./views/setup/MappingObs.tsx";
+import { fetchProfile } from "./components/setup/FetchProfile.tsx";
+import { ProfileManager } from "./views/ProfileManager.tsx";
+import { LoadingView } from "./views/LoadingView.tsx";
 
 
 const controllers = [
@@ -70,66 +73,65 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <LayoutSetup/>,
+    loader: () => ({data: "hello words"}),
     children: [
       {
         path: "/",
         element: <SplashView controllers={controllers}/>,
       },
       {
+        path: "/profile",
+        element: <ProfileManager/>,
+      },
+      {
+        path: "/loading",
+        element: <LoadingView/>,
+      },
+      {
         path: "/obs/connection",
         element: <ObsConnection/>,
+      },
+      {
+        path: "/obs/connections/profiles",
+        element: <MappingObs/>,
       },
       {
         path: "/features",
         element: <Features/>,
       },
       {
-        path: "/features/controller/obs",
-        element: <MappingObs/>,
-      },
-    ],
-  },
-  {
-    path: "/home",
-    element: <GlobalLayout/>,
-    errorElement: <PageError/>,
-    children: [
-      {
-        path: "",
-        element: <App/>,
-      },
-      {
-        path: "blog",
+        path: "/home",
+        element: <GlobalLayout/>,
+        errorElement: <PageError/>,
         children: [
           {
             path: "",
-            element: <div>Mon Blog</div>,
+            element: <App/>,
           },
         ],
-      }, {
-        path: "setting",
-        element: <div>setting</div>,
       },
     ],
   },
+
 ]);
 
-const url = window.location;
-const baseUrl = url.pathname.split("/")[1];
-const address = `http://localhost:3000/${baseUrl}`;
-const ioPath = (baseUrl ? `/${baseUrl}` : "") + "/socket.io";
-
-const manager = new Manager(address, {
-  path: ioPath,
-});
-
-const socket = manager.socket("/");
-
-globalUpdateSocket(socket);
-
-socket.on("connect", () => {
-  console.log("client connect");
-});
+//
+// const url = window.location;
+// const baseUrl = url.pathname.split("/")[1];
+// const address = `http://localhost:3000/${baseUrl}`;
+// const ioPath = (baseUrl ? `/${baseUrl}` : "") + "/socket.io";
+//
+// const manager = new Manager(address, {
+//   path: ioPath,
+// });
+//
+// const socket = manager.socket("/");
+//
+// globalUpdateSocket(socket);
+//
+// socket.on("connect", () => {
+//   console.log("client connect !");
+// });
 
 
 createRoot(document.getElementById("root")!).render(

@@ -60,6 +60,7 @@ export class Profiles {
       profiles[index] = profile;
     }
     this.save(profiles);
+    this.setDefault(profile.id);
   }
   
   setDefault(id: Profile["id"]) {

@@ -6,11 +6,11 @@ import * as fs from "node:fs";
 import { Setup } from "@src/main/modules/Setup";
 import { getLogger, Logger } from "@src/main/utils/logger";
 import { Server, Socket } from "socket.io";
-import { Connection, Profile } from "@src/types/types";
+import { Asset, AssetContainer, Connection, Profile } from "@src/types/types";
 import * as process from "node:process";
 import db from "@src/main/utils/db";
 import { Profiles } from "@src/main/modules/Profiles";
-import { retry } from "rxjs";
+import { Controller } from "@src/main/modules/Controller";
 
 
 const DEFAULT = require("../resources/json/config.json");
@@ -20,10 +20,12 @@ const BASE_URL = DEFAULT.BASE_URL;
 // ROOM_SOCKET_IO
 const IO_ROOM = {
   SETUP: "setup",
+  CONTROLLER: "controller",
 };
 
 
 export class App {
+  private controller: Controller | undefined;
   
   /* TOOLS */
   private logger: Logger;
@@ -118,6 +120,11 @@ export class App {
     await db.connect();
   }
   
+  private initController() {
+    if (!this.controller) return;
+    this.controller = new Controller("class controller");
+  }
+  
   private initSetup() {
     if (this.setup) {
       return;
@@ -154,6 +161,8 @@ export class App {
       }
       if (room === IO_ROOM.SETUP) {
         this.joinSetup(socket);
+      } else if (room === IO_ROOM.CONTROLLER) {
+        this.joinController(socket);
       }
     });
     
@@ -163,6 +172,9 @@ export class App {
       this.ioClients.set(socket.id, socket);
       
       //PROFILE
+      socket.on("getProfiles", (_date, callback) => {
+        callback(this.profiles.getAll());
+      });
       socket.on("saveProfile", (p: Profile, callback) => {
         this.logger.warn(p);
         callback(this.profiles.set(p));
@@ -177,6 +189,18 @@ export class App {
       socket.on("setup", (p: boolean, callback) => {
         callback(this.toggleSetup(p, socket));
       });
+      
+      // Controller
+      socket.on("togglePower", (power: boolean, callback) => {
+        callback(this.toggleController(power, socket));
+      });
+      
+      this.sendAppState();
+    });
+    
+    this.profiles.default$.subscribe((profile) => {
+      this.logger.info("Default profile changed", profile);
+      this.io?.emit("handleDefault", profile);
     });
     
   }
@@ -202,6 +226,9 @@ export class App {
     socket.on("connectionObs", (c: Connection, callback) => {
       callback(this.setup?.connectObs(c));
     });
+    socket.on("disconnectObs", (_data, callback) => {
+      callback(this.setup?.disconnectObs());
+    });
     
     
     // EVENT PAGE CLIENT
@@ -211,9 +238,38 @@ export class App {
     });
   }
   
+  private handeController() {
+    if (!this.controller || !this.io) {
+      return;
+    }
+    
+    this.controller.power$.subscribe((p) => {
+      this.io?.emit("handlePower", p);
+    });
+    
+    this.controller.connections$.subscribe((c) => {
+      this.io?.to(IO_ROOM.CONTROLLER).emit("handleObsConnected", c.obs);
+    });
+  }
+  
+  private joinController(socket: Socket) {
+    this.logger.info("new Controller client connected");
+    
+    this.sendAppState();
+  }
+  
+  private sendAppState() {
+    if (!this.io) {
+      return;
+    }
+    this.io.emit("handlePower", this.controller ? true : false);
+    
+    this.io.emit("handleObsConnected", this.controller?.connections$.getValue().obs || this.setup?.obs.isReachable);
+  }
+  
   
   // ------------------------------------------
-  private toggleSetup = (power: boolean, socket: Socket) => {
+  private toggleSetup = (power: boolean, socket?: Socket) => {
     if (!this.setup && power) {
       this.initSetup();
       this.handleSetup();
@@ -231,7 +287,27 @@ export class App {
     return {success: "proccess..."};
   };
   
+  private toggleController = (power: boolean, socket?: Socket) => {
+    if (!this.controller && power) {
+      this.toggleSetup(false);
+      this.initController();
+      this.handeController();
+    } else if (this.controller && !power) {
+      this.controller.clean();
+      this.controller = undefined;
+    }
+    
+    if (power) {
+      socket?.join(IO_ROOM.CONTROLLER);
+    } else {
+      this.ioClients.forEach((c) => c.leave(IO_ROOM.CONTROLLER));
+    }
+  };
+  
   private setDefaultProfile = (id: Profile["id"]) => {
+    if (this.controller) {
+      this.toggleController(false);
+    }
     return this.profiles.setDefault(id);
   };
   
